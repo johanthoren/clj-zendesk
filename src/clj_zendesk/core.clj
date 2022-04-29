@@ -28,11 +28,11 @@
   This isn't a great solution. It introduces global state and makes many of the functions
   in this library even *less* pure than they could be. Other projects like the GitHub API
   client tentacles pass the auth-creds into every API call. I'd like to get the best of
-  both worlds at some stage. Suggestions welcome =)"
+  both worlds at some stage. Suggestions welcome ="
 
-[subdomain domain email token]
-(def auth-creds [(str email "/token") token])
-(def api-url (format "https://%s.%s/api/v2/" subdomain domain))
+  [subdomain domain email token]
+  (def auth-creds [(str email "/token") token])
+  (def api-url (format "https://%s.%s/api/v2/" subdomain domain)))
 
 
 (defn format-url
@@ -68,12 +68,12 @@
   back into kebab-case."
   ([method end-point] (api-call method end-point nil {}))
   ([method end-point positional-args] (api-call method end-point positional-args {}))
-  ([method end-point positional-args query
-     (let [req (make-request method end-point positional-args (or query {}))]
-       (-> req request
-               :body
-               (parse-string true)
-               kebabify-map))]))
+  ([method end-point positional-args query]
+   (let [req (make-request method end-point positional-args (or query {}))]
+     (-> req request
+             :body
+             (parse-string true)
+             kebabify-map))))
 
 
 (defprotocol StandardOperations
@@ -157,8 +157,8 @@
   E.g. `(defresource :tickets :users)` becomes `(do (defresource :tickets) (defresource :users))`"
   [& args]
   `(do
-     ~@(for [resource args])
-      `(defresource ~resource)))
+     ~@(for [resource args]
+        `(defresource ~resource))))
 
 
 ;; Define a bunch of resources. These are ones where standard operations Just Work™
