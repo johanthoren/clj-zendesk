@@ -30,9 +30,9 @@
   client tentacles pass the auth-creds into every API call. I'd like to get the best of
   both worlds at some stage. Suggestions welcome =)"
 
-  [subdomain domain email token]
-  (def auth-creds [(str email "/token") token])
-  (def api-url (format "https://%s.%s/api/v2/" subdomain domain)))
+[subdomain domain email token]
+(def auth-creds [(str email "/token") token])
+(def api-url (format "https://%s.%s/api/v2/" subdomain domain))
 
 
 (defn format-url
@@ -68,19 +68,20 @@
   back into kebab-case."
   ([method end-point] (api-call method end-point nil {}))
   ([method end-point positional-args] (api-call method end-point positional-args {}))
-  ([method end-point positional-args query]
+  ([method end-point positional-args query
      (let [req (make-request method end-point positional-args (or query {}))]
        (-> req request
                :body
                (parse-string true)
-               kebabify-map))))
+               kebabify-map))]))
 
 
 (defprotocol StandardOperations
   "Many resources have a standard range of things you can do with them (CRUD, basically)."
-  (get-all [_ ])
+  (get-all [_])
   (get-one [_ id])
   (create  [_ data])
+  (import  [_ data])
   (update  [_ id data])
   (delete  [_ id]))
 
@@ -107,6 +108,8 @@
 
 ;; `create` corresponds to a POST on the root of a resource (e.g. /api/v2/users.json)
 
+;; `import` corresponds to a POST on the import branch of a resource (e.g. /api/v2/import/users.json)
+
 ;; `delete` corresponds to a GET on a specific resource (e.g. /api/v2//users/3.json)
 
 ;; I haven't implemented `update` yet because I forgot and haven't had time!
@@ -121,6 +124,11 @@
   (create [_ data]
     ((singular resource-name) (api-call :post
                                         (base-url resource-name)
+                                        nil
+                                        {(singular resource-name) data})))
+  (import [_ data]
+    ((singular resource-name) (api-call :post
+                                        (str "imports/" (base-url resource-name))
                                         nil
                                         {(singular resource-name) data})))
   (delete [_ id]
@@ -149,8 +157,8 @@
   E.g. `(defresource :tickets :users)` becomes `(do (defresource :tickets) (defresource :users))`"
   [& args]
   `(do
-     ~@(for [resource args]
-      `(defresource ~resource))))
+     ~@(for [resource args])
+      `(defresource ~resource)))
 
 
 ;; Define a bunch of resources. These are ones where standard operations Just Work™
