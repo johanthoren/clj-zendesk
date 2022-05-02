@@ -18,7 +18,7 @@
             [clj-zendesk.util :refer [map-all-keys kebabify-map underscorify-map]]
             [inflections.core :refer [singular plural capitalize]]
             [cemerick.url :as url]
-            [camel-snake-kebab.core :refer [->snake_case ->CamelCase]]
+            [camel-snake-kebab.core :refer [->snake_case ->camelCase]]
             [cheshire.core :refer [generate-string parse-string]]))
 
 (defn setup
@@ -78,12 +78,12 @@
 
 (defprotocol StandardOperations
   "Many resources have a standard range of things you can do with them (CRUD, basically)."
-  (get-all [_])
-  (get-one [_ id])
-  (create  [_ data])
-  (import  [_ data])
-  (update  [_ id data])
-  (delete  [_ id]))
+  (get-all     [_])
+  (get-one     [_ id])
+  (create      [_ data])
+  (import      [_ data])
+  (update      [_ id data])
+  (delete      [_ id]))
 
 (defn base-url
   "Takes in e.g. :users and returns \"users\". Or :ticket-fields and
@@ -141,7 +141,7 @@
   [resource-name]
   (let [resource-symbol# `~(-> resource-name
                                name
-                               ->CamelCase
+                               ->camelCase
                                symbol)
         singular-symbol# `~(singular resource-symbol#)]
     `(do
